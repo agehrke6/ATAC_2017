@@ -1,3 +1,6 @@
+#!/bin/bash
+
+
 Concatenate reads from different lanes (if necessary)
 
 # concatenating reads from the same biological replicate that was sequences on two different runs.  Be sure to keep the F reads together and R reads together
