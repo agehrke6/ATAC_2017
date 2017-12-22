@@ -1,0 +1,58 @@
+#!/bin/bash
+
+chromVAR
+
+#load libraries
+> library(chromVAR)
+> library(BiocParallel)
+> register(MulticoreParam(8))
+> library(motifmatchr)
+> library(BSgenome.Hofstenia.FINAL)
+> library(chromVARmotifs)
+
+#load consensus peakfile
+> peakfile <- "consensus_peakset_clean_FINAL.txt"
+> peaks <- getPeaks(peakfile)
+#Warning message:
+#In getPeaks(peakfile) : Peaks are not equal width!
+      #Use resize(peaks, width = x, fix = "center") to make peaks equal in size,
+      #where x is the desired size of the peaks)
+
+> peaks <- resize(peaks, width = 200, fix = "center")
+
+#load bamfiles and count fragments
+> bamfiles <- c("0h_tail_merge_FINAL.bam", "3h_tail_merge_FINAL.bam")
+
+> fragment_counts <- getCounts(bamfiles, peaks, paired =  TRUE, by_rg = FALSE, format = "bam", colData = DataFrame(celltype = c("0h","3h")))
+#Reading in file: 0h_tail_merge_FINAL.bam
+#Reading in file: 3h_tail_merge_FINAL.bam
+
+#add Hofstenia GC bias
+> fragment_counts <- addGCBias(fragment_counts, genome = BSgenome.Hofstenia.FINAL)
+
+#filter counts
+> counts_filtered <- filterSamples(fragment_counts, min_depth = 1500, min_in_peaks = 0.005, shiny = FALSE)
+> counts_filtered <- filterPeaks(counts_filtered, non_overlapping = TRUE)
+
+#match motifs to human_pwms
+> motif_ix <- matchMotifs(human_pwms_v1, counts_filtered, genome = BSgenome.Hofstenia.FINAL)
+> bg <- getBackgroundPeaks(object = counts_filtered)
+> dev <- computeDeviations(object = counts_filtered, annotations = motif_ix, background_peaks = bg)
+
+#calculate variability
+> variability <- computeVariability(dev)
+> plotVariability(variability, use_plotly = FALSE)
+
+#To output the file as a .csv data matrix
+> matrix <- data.frame(variability)
+> write.csv(matrix, "0v3_variability.csv")
+
+#To make tSNE plots:
+> tsne_results <- deviationsTsne(dev, threshold = 1.5, perplexity = 10)
+> tsne_plots <- plotDeviationsTsne(dev, tsne_results, sample_column = "celltype", shiny = interactive())
+> tsne_plots
+
+#When you have the final matrix of all the chromVAR files and make the final matrix, to filter out all rows that dont have at least one entry of a certain value (in this cale p < .00005)
+> strict <- read.csv("chromVAR_variability_matrix_FINAL.csv")
+> superstrict <- filter_all(strict, any_vars(. < .00005))
+> write.csv(superstrict, "00005.csv")
