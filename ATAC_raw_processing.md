@@ -109,11 +109,11 @@ macs2 callpeak \
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Filter peaks that fall withing repetitive regions
+Filter peaks that fall within repetitive regions
 
-# Filter peaks that fall withing repetitive regions
+# Filter peaks that fall within repetitive regions
 
-# -v says "report in -a whever is not present in -b".
+# -v says "report in -a whatever is not present in -b".
 
 # -wa says "report the outcome values as they are in -a"
 
@@ -121,6 +121,11 @@ Filter peaks that fall withing repetitive regions
 
 $ module load bedtools
 
-$ bedtools intersect -wa -v -a <inputpeakfile.narrowPeak> -b <repeats.bed>  > peakfile_norepeats.narrowPeak
+# Use the summits file from MACS2 so only those peaks whose summits overlap with a repeat are excluded.  If you use the narrowpeak file, peaks could be excluded that overlap only a tiny amount with a repeat.  Alternatively, can probably mess with the % overlap in bedtools.   
 
+$ bedtools intersect -wa -v -a <inputfile>summits.bed -b hmi_repeats.gff  > <outputfile>summits_norepeats.bed
+
+# The resulting file is still only the summit of the peaks.  To recover the complete peak as originally defined by MACS2, overlap all new summits with the original peaks, report the value as reported in a (-wa flag) 
+
+$ bedtools intersect -wa -a <original_narrowpeak_file_from_MACS>.narrowPeak -b <outputfile>summits_norepeats.bed > <final_file_norepeats_based_on_summits>.narrowPeak
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
