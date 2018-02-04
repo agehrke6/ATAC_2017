@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# read in matrix
+data <- read.table("GO_arisingYJL.txt", header=TRUE)
+
+pp <- ggplot(data, aes(Sample,GO))
+
+# range changes the size of the dots, increase for visualization in figures
+pp <- pp + geom_point(aes(size = Count, colour=-log(P)), alpha=1.0) + scale_size(range = c(6, 12))
+
+# colours changes the p value color gradient
+pp <- pp + scale_colour_gradientn(colours = c("royal blue","light grey","red"))
+
+#names of GO categories, fixed list
+pp <- pp + scale_y_discrete(limits=c("negative_regulation_of_transcription_from_RNA_polymerase_II_promoter", "signal_transduction", "protein_autophosphorylation", "ion_transmembrane_transport", "calcium_ion_transmembrane_transport", "ion_transport", "chemical_synaptic_transmission", "negative_regulation_of_transcription_from_RNA_polymerase_II_promoter", "intracellular_signal_transduction", "positive_regulation_of_transcription_from_RNA_polymerase_II_promoter", "transcription_from_RNA_polymerase_II_promoter", "negative_regulation_of_transcription_from_RNA_polymerase_II_promoter", "angiogenesis", "palate_development", "embryonic_camera-type_eye_morphogenesis"), breaks = c("negative_regulation_of_transcription_from_RNA_polymerase_II_promoter", "signal_transduction", "protein_autophosphorylation", "ion_transmembrane_transport", "calcium_ion_transmembrane_transport", "ion_transport", "chemical_synaptic_transmission", "negative_regulation_of_transcription_from_RNA_polymerase_II_promoter", "intracellular_signal_transduction", "positive_regulation_of_transcription_from_RNA_polymerase_II_promoter", "transcription_from_RNA_polymerase_II_promoter", "negative_regulation_of_transcription_from_RNA_polymerase_II_promoter", "angiogenesis", "palate_development", "embryonic_camera-type_eye_morphogenesis"))
+
+pp <- pp + scale_x_discrete(limits=c("3h","6h","12h","24h","48h"), breaks = c("3h","6h","12h","24h","48h")) 
+
+# color and size here control the the grid
+pp <- pp + theme(panel.grid.major = element_line(colour = "light grey",size=0.2), panel.grid.minor = element_blank(), axis.ticks=element_line(colour = "black"),
+                 panel.background = element_blank(), axis.line = element_line(colour = "black"),
+                 axis.text=element_text(colour = "black", size=6), axis.title=element_text(size=8))
+
+pp + theme(panel.border=element_blank(), axis.line=element_line())
