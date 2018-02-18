@@ -1,3 +1,4 @@
+#!/bin/bash
 
 #run trimmomatic, not necessarily to trim reads, but to change the format of the fastq files. 
 #For some reason kallisto wont run with the raw output files from the nextseq.  
@@ -6,6 +7,7 @@
 # java -jar trimmomatic-0.35.jar SE -phred33 [INPUT FASTQ FILE] [OUPUT NAME FILE] ILLUMINACLIP:TruSeq3-SE:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
 
 #example
+
 $ java -jar trimmomatic-0.35.jar SE -phred33 /n/ngsdata/180214_NB502063_0102_AHK2K7BGX5/021418_Gehrke_RNAseq/4_S4_R1_001.fastq.gz 4_S4_R1_001_trimmed.fastq.gz ILLUMINACLIP:TruSeq3-SE:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
 
 #index kallisto, should only have to do once
@@ -42,10 +44,6 @@ $ kallisto quant  -i  hofstenia_filtered_index.idx -o egr_1_kallisto_FINAL -b 10
 
 # once all of the samples are run with kallisto, proceed to the harvard tutorial for RNA-seq and sleuth to do one version of the differential expression analysis 
 # file:///Users/agehrke/Desktop/R_course/DifferentialExpression_Markdown.cmd_v1.html
-
-
-
-
 
 #to concatenate into normalized matrices (for heatmaps) using TRINITY:
 
