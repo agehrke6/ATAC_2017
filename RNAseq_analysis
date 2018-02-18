@@ -1,0 +1,60 @@
+
+#run trimmomatic, not necessarily to trim reads, but to change the format of the fastq files. 
+#For some reason kallisto wont run with the raw output files from the nextseq.  
+#Trimmomatic must change something about the file format that makes in usable for kallsito 
+
+# java -jar trimmomatic-0.35.jar SE -phred33 [INPUT FASTQ FILE] [OUPUT NAME FILE] ILLUMINACLIP:TruSeq3-SE:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+
+#example
+$ java -jar trimmomatic-0.35.jar SE -phred33 /n/ngsdata/180214_NB502063_0102_AHK2K7BGX5/021418_Gehrke_RNAseq/4_S4_R1_001.fastq.gz 4_S4_R1_001_trimmed.fastq.gz ILLUMINACLIP:TruSeq3-SE:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+
+#index kallisto, should only have to do once
+
+# kallisto index -i [output indexed transcriptome name] [transcriptome]
+
+# example 
+
+kallisto index hofstenia_kallisto_index.idx /net/fs2k02/srv/export/srivastava_lab/share_root/Common/Transcriptome/hmi_transcriptome_20140211_filtered.fasta
+
+# there is a copy of the indexed transcriptome in the same directory as above
+
+# run kallisto on a single sample
+
+# kallisto quant -i transcripts.idx -o output -b 100 --single -l 180 -s 20 reads_1.fastq.gz
+
+# example:
+	
+$ kallisto quant  -i  hofstenia_filtered_index.idx -o egr_1_kallisto_FINAL -b 100 --single -l 300 -s 20 4_S4_R1_001_trimmed.fastq.gz 
+
+# example output
+[quant] fragment length distribution is truncated gaussian with mean = 300, sd = 20
+[index] k-mer length: 31
+[index] number of targets: 30,056
+[index] number of k-mers: 28,430,577
+[index] number of equivalence classes: 42,693
+[quant] running in single-end mode
+[quant] will process file 1: 4_S4_R1_001_trimmed.fastq.gz
+[quant] finding pseudoalignments for the reads ... done
+[quant] processed 45,492,400 reads, 36,587,780 reads pseudoaligned
+[   em] quantifying the abundances ... done
+[   em] the Expectation-Maximization algorithm ran for 300 rounds
+[bstrp] running EM for the bootstrap: 100
+
+# once all of the samples are run with kallisto, proceed to the harvard tutorial for RNA-seq and sleuth to do one version of the differential expression analysis 
+# file:///Users/agehrke/Desktop/R_course/DifferentialExpression_Markdown.cmd_v1.html
+
+
+
+
+
+#to concatenate into normalized matrices (for heatmaps) using TRINITY:
+
+$ /net/fs2k02/srv/export/srivastava_lab/share_root/lab_programs/trinityrnaseq-Trinity-v2.4.0/util/abundance_estimates_to_matrix.pl --est_method kallisto \
+ --out_prefix kallisto \
+--name_sample_by_basedir \
+unc_1_kallisto_FINAL/abundance.tsv \
+unc_2_kallisto_FINAL/abundance.tsv \
+unc_3_kallisto_FINAL/abundance.tsv \
+egr_1_kallisto_FINAL/abundance.tsv \
+egr_2_kallisto_FINAL/abundance.tsv \
+egr_3_kallisto_FINAL/abundance.tsv \
