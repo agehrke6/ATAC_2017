@@ -16,7 +16,9 @@ $ java -jar trimmomatic-0.35.jar SE -phred33 /n/ngsdata/180214_NB502063_0102_AHK
 
 # example 
 
-kallisto index hofstenia_kallisto_index.idx /net/fs2k02/srv/export/srivastava_lab/share_root/Common/Transcriptome/hmi_transcriptome_20140211_filtered.fasta
+$ module load kallisto
+
+$ kallisto index hofstenia_kallisto_index.idx /net/fs2k02/srv/export/srivastava_lab/share_root/Common/Transcriptome/hmi_transcriptome_20140211_filtered.fasta
 
 # there is a copy of the indexed transcriptome in the same directory as above
 
