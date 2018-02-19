@@ -45,7 +45,7 @@ $ kallisto quant  -i  hofstenia_filtered_index.idx -o egr_1_kallisto_FINAL -b 10
 [bstrp] running EM for the bootstrap: 100
 
 # once all of the samples are run with kallisto, proceed to the harvard tutorial for RNA-seq and sleuth to do one version of the differential expression analysis 
-# file:///Users/agehrke/Desktop/R_course/DifferentialExpression_Markdown.cmd_v1.html
+# https://informatics.fas.harvard.edu/workshops/HarvardInformatics_DEworkshop_Fall2017.html
 
 #to concatenate into normalized matrices (for heatmaps) using TRINITY:
 
