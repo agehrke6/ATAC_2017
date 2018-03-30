@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# move all raw (single end) reads to one folder, then number them 01_sample1.fastq, 02_sample2.fastq
+
+$ ll | awk '{print$9}' | grep fastq > read.list
+$ less read.list 
+-----------------------------------------------------------------------------------------------------------------------------
+#!/bin/bash
+#SBATCH -J "salmon_batch_run"
+#SBATCH -n 1               # Use n cores for one job
+#SBATCH -t 0-1:00                # Runtime in D-HH:MM
+#SBATCH -p shared                # Partition to submit to
+#SBATCH --mem=2000            # Memory pool for all cores
+#SBATCH -o outfile.%A.out	# File to which STDOUT will be written
+#SBATCH -e outfile.%A.err	# File to which STDERR will be written
+#SBATCH --mail-type=ALL           # Type of email notification- BEGIN,END,FAIL,ALL
+#SBATCH --mail-user=andrew_gehrke@fas.harvard.edu # Email to which notifications will be sent
+#SBATCH --array=1-24
+
+#load salmon
+module load salmon/0.8.0-fasrc01
+
+CWD="/net/fs2k02/srv/export/srivastava_lab/share_root/Andrew_Gehrke"
+OUTPUT=${CWD}/regeneration_timecourse_reanaysis/salmon$SLURM_ARRAY_TASK_ID
+mkdir -p $OUTPUT
+
+# Array job setting
+I=$SLURM_ARRAY_TASK_ID
+LIST="${CWD}/regeneration_timecourse_reanaysis/read.list"
+READS=$(cat ${LIST} | sed ''${I}'!d')
+
+# Run salmon
+salmon quant -i /net/fs2k02/srv/export/srivastava_lab/share_root/ATAC_data/ATAC_DoveTail_Data/raw_reads_cat/salmon_index_FINAL -l A -r $READS -p 4 -o $OUTPUT
