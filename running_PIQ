@@ -1,0 +1,107 @@
+#!/bin/bash
+
+
+# Running PIQ en mass
+
+# slurm code to prep the bam, only need to be done once for each set of bam replicates:
+---------------------------------------------------------------------------------------------------------------------------
+
+#!/bin/bash
+#SBATCH -J "PIQ_bam_prep"
+#SBATCH -n 1                # Use n cores for one job
+#SBATCH -t 0-20:00                # Runtime in D-HH:MM
+#SBATCH -p general                # Partition to submit to
+#SBATCH --mem=96000            # Memory pool for all cores
+#SBATCH -o outfile.%A.out	# File to which STDOUT will be written
+#SBATCH -e outfile.%A.err	# File to which STDERR will be written
+#SBATCH --mail-type=ALL           # Type of email notification- BEGIN,END,FAIL,ALL
+#SBATCH --mail-user=andrew_gehrke@fas.harvard.edu # Email to which notifications will be sent
+
+# Setting of PATH, need this to use YJL version of R which has everything installed
+export PATH="/n/home08/yjluo/local/bin:$PATH"
+
+# Convert BAM to internal binary format (does not depend on choice of motif).
+
+# This program only takes the bam file for any given condition as the input.  So only need to run this program once on each bam file, then just match to different outputs from motif.matchr
+
+# The author provides a 'pairedbam2rdata.r' program which takes data from paired end into account, but I couldnt get it to run.  I contacted him about it and he said this single end version should be fine and often outperfo$
+
+# $1 is the output folder
+# $2 is input bam file replicate 1
+# $3 is input bam file replicate 2
+
+Rscript bam2rdata.hofstenia.r common.hofstenia.r $1/d0.Rdata $2 $3
+---------------------------------------------------------------------------------------------------------------------------
+
+# slurm code to do the motif matching on the genome (only need to do once, used jaspar.txt)
+
+---------------------------------------------------------------------------------------------------------------------------
+#!/bin/bash
+#SBATCH -J "PIQ_motifmatch"
+#SBATCH -n 1                # Use n cores for one job
+#SBATCH -t 0-10:00                # Runtime in D-HH:MM
+#SBATCH -p shared                # Partition to submit to
+#SBATCH --mem=10000            # Memory pool for all cores
+#SBATCH -o outfile.%A.out	# File to which STDOUT will be written
+#SBATCH -e outfile.%A.err	# File to which STDERR will be written
+#SBATCH --mail-type=ALL           # Type of email notification- BEGIN,END,FAIL,ALL
+#SBATCH --mail-user=andrew_gehrke@fas.harvard.edu # Email to which notifications will be sent
+#SBATCH -a 1-441
+
+# Setting of PATH, need this to use YJL version of R which has everything installed
+export PATH="/n/home08/yjluo/local/bin:$PATH"
+
+Rscript pwmmatch.exact.r common.hofstenia.r jaspar.txt $SLURM_ARRAY_TASK_ID tim_script_test blacklist.bed
+---------------------------------------------------------------------------------------------------------------------------
+# all of the motif match files are placed into the folder "tim_script_test"
+
+# to combine the motif match scores with ONE of the prepped bams:
+# be careful about the time requested, I did with 10 hours and was not enough time
+---------------------------------------------------------------------------------------------------------------------------
+#!/bin/bash
+#SBATCH -J "PIQ_combine_egr_6h_tail_NEW"
+#SBATCH -n 1               # Use n cores for one job
+#SBATCH -t 0-20:00                # Runtime in D-HH:MM
+#SBATCH -p shared                # Partition to submit to
+#SBATCH --mem=10000            # Memory pool for all cores
+#SBATCH -o outfile.%A.out	# File to which STDOUT will be written
+#SBATCH -e outfile.%A.err	# File to which STDERR will be written
+#SBATCH --mail-type=ALL           # Type of email notification- BEGIN,END,FAIL,ALL
+#SBATCH --mail-user=andrew_gehrke@fas.harvard.edu # Email to which notifications will be sent
+#SBATCH --array=1-441
+
+# Setting of PATH, need this to use YJL version of R which has everything installed
+export PATH="/n/home08/yjluo/local/bin:$PATH"
+
+MOTIFFOLDER=$1 #first argument to script
+BAMFOLDER=$2 #second argument to script
+
+TMPDIR=/scratch/piq_run_$SLURM_ARRAY_TASK_ID
+mkdir -p $TMPDIR
+
+OUTPUT=/net/fs2k02/srv/export/srivastava_lab/share_root/Andrew_Gehrke/PIQ/results_$BAMFOLDER/pwm$SLURM_ARRAY_TASK_ID
+mkdir -p $OUTPUT
+
+PWM=$SLURM_ARRAY_TASK_ID
+
+# Run the R script
+Rscript pertf.chromdump.r common.hofstenia.r \
+$MOTIFFOLDER \
+$TMPDIR \
+$OUTPUT \
+$BAMFOLDER/d0.Rdata $PWM
+
+#--//
+---------------------------------------------------------------------------------------------------------------------------
+
+$ mkdir pioneer_index_scores
+
+$ cd results_6h_prepped_bam_FINAL/
+
+$ find . -name '*\ *.txt' -exec cp {} /net/fs2k02/srv/export/srivastava_lab/share_root/Andrew_Gehrke/PIQ/pioneer_index_scores/ \;
+
+$ ..
+
+$ cd pioneer_index_scores/
+
+$ cat *\ *.txt > pioneer_scores_master.txt
