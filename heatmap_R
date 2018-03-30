@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# generic code for making heatmaps with pheatmap
+
+> data <- read.csv("matrix.csv", comment.char = "#")
+
+> rnames <- data[,1]
+
+> mat_data <- data.matrix(data[,2:ncol(data)])
+
+> rownames(mat_data) <- rnames
+
+> library(ggplot2)
+
+> my_palette <- colorRampPalette(c("white","royal blue", "red"))(n=64)
+
+> pheatmap(mat_data, fontsize_row=8, cluster_cols=F, cluster_rows=T, col=my_palette, scale="none", key=TRUE, symkey=FALSE, density.info="none", trace="none", cexCol=1, cexRow=1, cellwidth=20, cellheight=10)
