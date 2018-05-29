@@ -1,0 +1,199 @@
+#!/bin/bash
+
+#load JBrowse module
+module load JBrowse/1.14.1-fasrc01
+
+#prepare reference sequence
+prepare-refseqs.pl --fasta <genome.fa> --out <output_directory>
+
+#example
+prepare-refseqs.pl --fasta /net/fs2k02/srv/export/srivastava_lab/share_root/Common/Genome/hmi_genome.fa --out /net/fs2k02/srv/export/srivastava_lab/share_root/public_html/jbrowse/json/hmi/
+
+#add tracks
+flatfile-to-json.pl --gff <file.gff> --trackType CanvasFeatures --trackLabel <track_name> --out <output_directory>
+#or
+flatfile-to-json.pl --bed <file.bed> --trackType CanvasFeatures --trackLabel <track_name> --out <output_directory>
+
+#example
+flatfile-to-json.pl --gff /net/fs2k02/srv/export/srivastava_lab/share_root/Common/Genome/hmi_annotated_FINAL_ANNOTATION.gff --trackType CanvasFeatures --trackLabel gene --out /net/fs2k02/srv/export/srivastava_lab/share_root/public_html/jbrowse/json/hmi/
+
+#note: if gff files are displey improperly in the browser after running flatfile-to-json.pl, check to make sure your gff is the correct format, ideally GFF3 format
+
+#To delete tracks: Need to delete the files from the serves, and possible also edit the "trackList.json" file to make sure the track label no longer shows:
+#Example portion of tracklist.json file:
+
+{
+   "formatVersion" : 1,
+   "names" : {
+      "type" : "Hash",
+      "url" : "names/"
+   },
+   "tracks" : [
+      {
+         "category" : "Reference sequence",
+         "chunkSize" : 20000,
+         "key" : "Reference sequence",
+         "label" : "DNA",
+         "seqType" : "dna",
+         "storeClass" : "JBrowse/Store/Sequence/StaticChunked",
+         "type" : "SequenceTrack",
+         "urlTemplate" : "seq/{refseq_dirpath}/{refseq}-"
+      },
+      {
+         "storeClass" : "JBrowse/Store/SeqFeature/BigWig",
+         "urlTemplate" : "0h_tail_merge.bw",
+
+         "type" : "JBrowse/View/Track/Wiggle/XYPlot",
+         "label" : "0h_ATAC",
+         "key" : "0h_ATAC",
+          "autoscale": "local",
+      {
+         "compress" : 0,
+         "key" : "gene_models",
+         "label" : "gene_models",
+         "storeClass" : "JBrowse/Store/SeqFeature/NCList",
+         "style" : {
+            "className" : "feature"
+         },
+         "trackType" : "CanvasFeatures",
+         "type" : "CanvasFeatures",
+         "urlTemplate" : "tracks/gene_models/{refseq}/trackData.json"
+      }
+   ]
+}
+
+#To display bw tracks in the browser:  copy your bw file to the destination folder, and then edit the tracklist.json file to include your file
+#example, which can be be seen as part of the script above:
+
+},
+       {
+         "storeClass" : "JBrowse/Store/SeqFeature/BigWig",
+         "urlTemplate" : "12h_tail_merge_FINAL.bw",
+
+         "type" : "JBrowse/View/Track/Wiggle/XYPlot",
+         "label" : "12h_ATAC",
+         "key" : "12h_ATAC",
+          "autoscale": "local",
+      },
+
+#just keep adding these to add different tracks.  Here is the total trackList.json file for an eary version of the browser (this is written as Apache using coteditor)
+
+{
+   "formatVersion" : 1,
+   "names" : {
+      "type" : "Hash",
+      "url" : "names/"
+   },
+   "tracks" : [
+      {
+         "category" : "Reference sequence",
+         "chunkSize" : 20000,
+         "key" : "Reference sequence",
+         "label" : "DNA",
+         "seqType" : "dna",
+         "storeClass" : "JBrowse/Store/Sequence/StaticChunked",
+         "type" : "SequenceTrack",
+         "urlTemplate" : "seq/{refseq_dirpath}/{refseq}-"
+      },
+      {
+         "storeClass" : "JBrowse/Store/SeqFeature/BigWig",
+         "urlTemplate" : "0h_tail_merge.bw",
+
+         "type" : "JBrowse/View/Track/Wiggle/XYPlot",
+         "label" : "0h_ATAC",
+         "key" : "0h_ATAC",
+          "autoscale": "local",
+      },
+        {
+         "storeClass" : "JBrowse/Store/SeqFeature/BigWig",
+         "urlTemplate" : "3h_tail_merge_FINAL.bw",
+
+         "type" : "JBrowse/View/Track/Wiggle/XYPlot",
+         "label" : "3h_ATAC",
+         "key" : "3h_ATAC",
+          "autoscale": "local",
+      },
+       {
+         "storeClass" : "JBrowse/Store/SeqFeature/BigWig",
+         "urlTemplate" : "6h_tail_merge_FINAL.bw",
+
+         "type" : "JBrowse/View/Track/Wiggle/XYPlot",
+         "label" : "6h_ATAC",
+         "key" : "6h_ATAC",
+          "autoscale": "local",
+      },
+      {
+         "storeClass" : "JBrowse/Store/SeqFeature/BigWig",
+         "urlTemplate" : "6h_unc_merge_FINAL_SAMPLES.bw",
+
+         "type" : "JBrowse/View/Track/Wiggle/XYPlot",
+         "label" : "6h_control_RNAi_ATAC",
+         "key" : "6h_control_RNAi_ATAC",
+          "autoscale": "local",
+      },
+       {
+         "storeClass" : "JBrowse/Store/SeqFeature/BigWig",
+         "urlTemplate" : "6h_tail_egr_RNAi_merge_FINAL.bw ",
+
+         "type" : "JBrowse/View/Track/Wiggle/XYPlot",
+         "label" : "6h_egr_RNAi_ATAC",
+         "key" : "6h_egr_RNAi_ATAC",
+          "autoscale": "local",
+      },
+       {
+         "storeClass" : "JBrowse/Store/SeqFeature/BigWig",
+         "urlTemplate" : "12h_tail_merge_FINAL.bw",
+
+         "type" : "JBrowse/View/Track/Wiggle/XYPlot",
+         "label" : "12h_ATAC",
+         "key" : "12h_ATAC",
+          "autoscale": "local",
+      },
+       {
+         "storeClass" : "JBrowse/Store/SeqFeature/BigWig",
+         "urlTemplate" : "24h_tail_merge_sorted.bw",
+
+         "type" : "JBrowse/View/Track/Wiggle/XYPlot",
+         "label" : "24h_ATAC",
+         "key" : "24h_ATAC",
+          "autoscale": "local",
+      },
+      {
+         "storeClass" : "JBrowse/Store/SeqFeature/BigWig",
+         "urlTemplate" : "48h_tail_merge_sorted_FINAL.bw",
+
+         "type" : "JBrowse/View/Track/Wiggle/XYPlot",
+         "label" : "48h_ATAC",
+         "key" : "48h_ATAC",
+          "autoscale": "local",
+      },
+      {
+         "compress" : 0,
+         "key" : "transcriptome",
+         "label" : "transcriptome",
+         "storeClass" : "JBrowse/Store/SeqFeature/NCList",
+         "style" : {
+            "className" : "feature"
+         },
+         "trackType" : "CanvasFeatures",
+         "type" : "CanvasFeatures",
+         "urlTemplate" : "tracks/gff3_new/{refseq}/trackData.json"
+      },
+      {
+         "compress" : 0,
+         "key" : "gene_models",
+         "label" : "gene_models",
+         "storeClass" : "JBrowse/Store/SeqFeature/NCList",
+         "style" : {
+            "className" : "feature"
+         },
+         "trackType" : "CanvasFeatures",
+         "type" : "CanvasFeatures",
+         "urlTemplate" : "tracks/gene_models/{refseq}/trackData.json"
+      }
+   ]
+}
+
+
+
+
