@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#convert salmon output to kallisto format.  Each file listed here is folder straight from salmon output, with a .sf file inside
 > sfdirs <-  c("0h_rep1_tail/", "0h_rep2_tail/","0h_rep3_tail/","1h_rep1_tail/","1h_rep2_tail/","1h_rep3_tail/","3h_rep1_tail/","3h_rep2_tail/","3h_rep3_tail/","6h_rep1_tail/","6h_rep2_tail/","6h_rep3_tail/","12h_rep1_tail/","12h_rep2_tail/","12h_rep3_tail/")
 
 > prepare_fish_for_sleuth(sfdirs)
