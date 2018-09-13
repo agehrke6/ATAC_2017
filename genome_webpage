@@ -1,6 +1,6 @@
 #!/bin/bash
 
-$ cd /net/fs2k02/srv/export/srivastava_lab/share_root/public_html
+$ cd cd /net/fs2k02/srv/export/srivastava_lab/share_root/hmiamia_web
 
 $ module load python/2.7.14-fasrc01
 
