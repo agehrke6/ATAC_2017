@@ -1,0 +1,18 @@
+#!/bin/bash
+
+$ cd /net/fs2k02/srv/export/srivastava_lab/share_root/public_html
+
+$ module load python/2.7.14-fasrc01
+
+$ source activate pelican
+
+$ pelican content -t `pwd`/theme -o output
+
+#http://srivastavalab.rc.fas.harvard.edu/
+
+---------------------------------------------------------------------
+
+$ git remote -v show
+
+#origin	https://github.com/harvardinformatics/srivastava.git (fetch)
+#origin	https://github.com/harvardinformatics/srivastava.git (push)
