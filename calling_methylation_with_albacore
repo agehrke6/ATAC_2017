@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# this is all following nanopolish (https://nanopolish.readthedocs.io/en/latest/index.html)
+
+# remove any potential duplicated reads (this happened when I used cat to make my final albacore fastq file)
+# did the removal with seqkit, which has options to remove duplicates by read, ID, etc.  Input fastq files must be gzipped.  
+
+module load Anaconda/5.0.1-fasrc02
+source activate albacore
+
+(albacore) [agehrke@aagk80gpu64 gehrke]$ zcat filtered_dedup_from_bam.fq.gz | seqkit rmdup  -o clean_ID.fq
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# index the reads using nanopolish.  
+# best to submit this as a job.  Took about 3 hours with 36GB of memory.
+# example: nanopolish index -d <path to folder with fast5 files> <path to fastq file>
+# nanopolish is not installed as a module on the cluster, so have to naviate to the nanopolish folder and use ./ to run.  
+
+module load Anaconda/5.0.1-fasrc02
+source activate albacore
+
+$ ./nanopolish index -d /net/fs2k02/srv/export/srivastava_lab/share_root/genome_raw_reads_FINAL/nanopore/20180920_2010_AGehrkeH3/fast5 /n/regal/srivastava_lab/gehrke/clean_ID.fq
+
+# this creates 4 index files (see nanopolish documentation for detail).  
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# use nanopolish to make methylation calls
+# again, need to be in the nanoolish folder
+# -b is the alignment bam from minimap2
+# -w allows you to select certain regions to do the methylation calling.  The program takes a long time, so its definitely worth it to select a certain interesting region.
+
+$ ./nanopolish call-methylation -t 8 -r /n/regal/srivastava_lab/gehrke/clean_ID.fq -b /n/regal/srivastava_lab/gehrke/filtered_dedup.bam -g /net/fs2k02/srv/export/srivastava_lab/share_root/ATAC_data/ATAC_DoveTail_Data/raw_reads_cat/hmi_genome.fa -w "scaffold1:6,707-7,484,153" > methylation_calls.tsv
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# helper script to determine how often each base is methylated
+
+$ ./calculate_methylation_frequency.py -i methylation_calls.tsv > methylation_frequency.tsv
+
+# when viewing output, make sure to pay attention to how many "called sites" there are.  One called site that is methylated will give a perfect methylation score, but only has an n=1. 
